@@ -9,7 +9,7 @@ class dekatronStep
 	unsigned long previousMillis;
 	
 public:
-	dekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)
+	dekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
@@ -22,14 +22,14 @@ public:
 		pinMode(Index, INPUT);
 	}
 
-void updateStep()
+void updateStep(unsigned long currentMillis)
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
 	
 	delayMicroseconds(40); 
 
-	unsigned long currentMillis = millis();
+	//unsigned long currentMillis = millis();
 
 	if ((currentMillis - previousMillis >= stepDelay))
 	{
@@ -84,14 +84,28 @@ dekatronStep Dek2(44, 42, 40,5,true);
 dekatronStep Dek3(36, 34, 32,10,true);
 dekatronStep Dek4(28, 26, 24,1000,true);
 
-// setup() runs once, at reset, to initialize system
-void setup() {
+void setup()
+{
+	// Timer0 is already used for millis() - we'll just interrupt somewhere
+	// in the middle and call the "Compare A" function below
+	OCR0A = 0xAF;
+	TIMSK0 |= _BV(OCIE0A);
+}
+
+// Interrupt is called once a millisecond, looks for any new and stores it
+SIGNAL(TIMER0_COMPA_vect)
+{
+	unsigned long currentMillis = millis();
+
+	Dek1.updateStep(currentMillis);
+	Dek2.updateStep(currentMillis);
+	Dek3.updateStep(currentMillis);
+	Dek4.updateStep(currentMillis);
+
 }
 
 // the loop function runs over and over again forever
 void loop() {
-	Dek1.updateStep();
-	Dek2.updateStep();
-	Dek3.updateStep();
-	Dek4.updateStep();
+
 }
+
