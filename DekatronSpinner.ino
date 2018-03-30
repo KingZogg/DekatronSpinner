@@ -80,20 +80,31 @@ void updateStep(unsigned long currentMillis)
 };
 
 dekatronStep Dek1(52, 50, 48,0,false); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,5,true);
-dekatronStep Dek3(36, 34, 32,10,true);
-dekatronStep Dek4(28, 26, 24,1000,true);
+dekatronStep Dek2(44, 42, 40,0,true);
+dekatronStep Dek3(36, 34, 32,0,true);
+dekatronStep Dek4(28, 26, 24,0,true);
 
 void setup()
 {
-	// Timer0 is already used for millis() - we'll just interrupt somewhere
-	// in the middle and call the "Compare A" function below
-	OCR0A = 0xAF;
-	TIMSK0 |= _BV(OCIE0A);
+	// TIMER 1 for interrupt frequency 2000 Hz:
+	cli(); // stop interrupts
+	TCCR1A = 0; // set entire TCCR1A register to 0
+	TCCR1B = 0; // same for TCCR1B
+	TCNT1 = 0; // initialize counter value to 0
+			   // set compare match register for 2000 Hz increments
+	OCR1A = 7999; // = 16000000 / (1 * 2000) - 1 (must be <65536)
+				  // turn on CTC mode
+	TCCR1B |= (1 << WGM12);
+	// Set CS12, CS11 and CS10 bits for 1 prescaler
+	TCCR1B |= (0 << CS12) | (0 << CS11) | (1 << CS10);
+	// enable timer compare interrupt
+	TIMSK1 |= (1 << OCIE1A);
+	sei(); // allow interrupts
+
 }
 
-// Interrupt is called once a millisecond, looks for any new and stores it
-SIGNAL(TIMER0_COMPA_vect)
+// Interrupt is called once a millisecond
+ISR(TIMER1_COMPA_vect)
 {
 	unsigned long currentMillis = millis();
 
