@@ -78,6 +78,5 @@ typedef unsigned char uint8_t;
 #define pgm_read_ptr(address_short)   short()
 
 #include "DekatronSpinner.ino"
-#include "flasher.ino"
 #endif
 #endif

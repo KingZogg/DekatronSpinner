@@ -16,7 +16,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="DekatronSpinner.ino" />
-    <None Include="flasher.ino" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.DekatronSpinner.vsarduino.h">

@@ -1,68 +1,68 @@
-/*
-Dekatron Spinner - Variable Rate
-
-modified March 25, 2017
-by Michael Moorrees
-*/
-
-int D_count = 0;
-int i_rate = 15;
-int i_delay = 100;
-int LED = 13;         // Test LED
-int Guide1 = 52;       // Guide 1 - G1 pin of 2-guide Dekatron
-int Guide2 = 50;       // Guide 2 - G2 pin of 2-guide Dekatron
-int Index = 48;       // Index   - NDX input pin. High when glow at K0
-int Ndx = 0;          // K0 index indicator variable
-
-void G_step(int CINT) // Dekatron Stepper
+class DekatronStep
 {
-	if (CINT > 2) CINT = 0;
-	if (CINT == 0)
+	int Guide1;   
+	int Guide2;
+	int Index;
+	int previousGuideState;
+	int stepDelay;
+	
+public:
+	DekatronStep(int pin1, int pin2, int pin3)
 	{
-		digitalWrite(Guide1, LOW);
-		digitalWrite(Guide2, LOW);
+		Guide1 = pin1;
+		Guide2 = pin2;
+		Index = pin3;
+		
+		pinMode(Guide1, OUTPUT);
+		pinMode(Guide2, OUTPUT);
+		pinMode(Index, INPUT);
 	}
-	if (CINT == 1)
+
+void Update()
 	{
-		digitalWrite(Guide1, HIGH);
-		digitalWrite(Guide2, LOW);
+		//Delay needed for there is not enough delay in the loop when calling.
+		//if there is a serial print or the like in the loop then the delay is not needed.
+		// minimum reliable pulse width of a dekatron seems to be about 40uS (in this code).
+		// will need adjusting depending on processor speed. This is runing at 16mHz.
+	
+	delayMicroseconds(40); 
+
+		switch (previousGuideState) {
+		case 0:    
+			previousGuideState = 1;
+			digitalWrite(Guide1, LOW);
+			digitalWrite(Guide2, LOW);
+			break;
+		case 1:    
+			previousGuideState = 2;
+			digitalWrite(Guide1, HIGH);
+			digitalWrite(Guide2, LOW);
+			break;
+		case 2:    
+			previousGuideState = 0;
+			digitalWrite(Guide1, LOW);
+			digitalWrite(Guide2, HIGH);
+			break;
+		}
 	}
-	if (CINT == 2)
-	{
-		digitalWrite(Guide1, LOW);
-		digitalWrite(Guide2, HIGH);
-	}
-}
+};
+
+
+DekatronStep Dek1(52, 50, 48); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+DekatronStep Dek2(44, 42, 40);
+DekatronStep Dek3(36, 34, 32);
+DekatronStep Dek4(28, 26, 24);
+
+
 
 // setup() runs once, at reset, to initialize system
 void setup() {
-	pinMode(Guide1, OUTPUT);
-	pinMode(Guide2, OUTPUT);
-	pinMode(Index, INPUT);
-	pinMode(LED, OUTPUT);
-
-	D_count = 0;
-	i_rate = 15;
-	i_delay = 100;
-	Ndx = 0;
-	G_step(D_count);
-	digitalWrite(LED, LOW);
 }
 
 // the loop function runs over and over again forever
 void loop() {
-	Ndx = digitalRead(Index); // Sample for glow at K0
-	if (Ndx) {
-		i_rate = 16;
-		i_delay = (3 * i_rate) + 8;
-		digitalWrite(LED, HIGH);
-	}
-	i_rate--;
-	i_delay = (3 * abs(i_rate)) + 8;
-	D_count++;
-	delay(i_delay);            // wait per i_rate
-	if (D_count > 2) D_count = 0;
-	if (D_count < 0) D_count = 2;
-	G_step(D_count);          // Step Dekatron
-	digitalWrite(LED, LOW);
+	Dek1.Update();
+	Dek2.Update();
+	Dek3.Update();
+	Dek4.Update();
 }

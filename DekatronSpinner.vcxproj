@@ -78,9 +78,6 @@
     <None Include="DekatronSpinner.ino">
       <FileType>CppCode</FileType>
     </None>
-    <None Include="flasher.ino">
-      <FileType>CppCode</FileType>
-    </None>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="__vm\.DekatronSpinner.vsarduino.h" />
