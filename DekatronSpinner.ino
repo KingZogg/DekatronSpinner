@@ -1,4 +1,4 @@
-class DekatronStep
+class dekatronStep
 {
 	int Guide1;   
 	int Guide2;
@@ -9,7 +9,7 @@ class DekatronStep
 	unsigned long previousMillis;
 	
 public:
-	DekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)
+	dekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
@@ -22,14 +22,12 @@ public:
 		pinMode(Index, INPUT);
 	}
 
-void Update()
+void updateStep()
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
-		//if there is a serial print or the like in the loop then the delay is not needed.
-		// minimum reliable pulse width of a dekatron seems to be about 40uS (in this code).
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
 	
-	//delayMicroseconds(40); 
+	delayMicroseconds(40); 
 
 	unsigned long currentMillis = millis();
 
@@ -40,7 +38,7 @@ void Update()
 			previousGuideState = 1;
 			digitalWrite(Guide1, LOW);
 			digitalWrite(Guide2, LOW);
-			previousMillis = currentMillis;  // Remember the time
+			previousMillis = currentMillis;
 			break;
 
 		case 1:
@@ -55,7 +53,7 @@ void Update()
 				digitalWrite(Guide1, LOW);
 				digitalWrite(Guide2, HIGH);
 			}
-			previousMillis = currentMillis;  // Remember the time
+			previousMillis = currentMillis;
 			break;
 
 		case 2:
@@ -70,7 +68,7 @@ void Update()
 				digitalWrite(Guide1, HIGH);
 				digitalWrite(Guide2, LOW);
 			}
-			previousMillis = currentMillis;  // Remember the time
+			previousMillis = currentMillis;
 			break;
 		}
 
@@ -81,13 +79,10 @@ void Update()
 
 };
 
-
-DekatronStep Dek1(52, 50, 48,5,true); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-DekatronStep Dek2(44, 42, 40,10,false);
-DekatronStep Dek3(36, 34, 32,100,false);
-DekatronStep Dek4(28, 26, 24,1000,true);
-
-
+dekatronStep Dek1(52, 50, 48,0,false); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek2(44, 42, 40,5,true);
+dekatronStep Dek3(36, 34, 32,10,true);
+dekatronStep Dek4(28, 26, 24,1000,true);
 
 // setup() runs once, at reset, to initialize system
 void setup() {
@@ -95,8 +90,8 @@ void setup() {
 
 // the loop function runs over and over again forever
 void loop() {
-	Dek1.Update();
-	Dek2.Update();
-	Dek3.Update();
-	Dek4.Update();
+	Dek1.updateStep();
+	Dek2.updateStep();
+	Dek3.updateStep();
+	Dek4.updateStep();
 }
