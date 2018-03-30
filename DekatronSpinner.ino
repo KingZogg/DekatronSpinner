@@ -5,13 +5,15 @@ class DekatronStep
 	int Index;
 	int previousGuideState;
 	int stepDelay;
+	unsigned long previousMillis;
 	
 public:
-	DekatronStep(int pin1, int pin2, int pin3)
+	DekatronStep(int pin1, int pin2, int pin3,int sDelay)
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
 		Index = pin3;
+		stepDelay = sDelay;
 		
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
@@ -27,31 +29,41 @@ void Update()
 	
 	delayMicroseconds(40); 
 
+	unsigned long currentMillis = millis();
+
+	if (currentMillis - previousMillis >= stepDelay){
+
 		switch (previousGuideState) {
-		case 0:    
+		case 0:
 			previousGuideState = 1;
 			digitalWrite(Guide1, LOW);
 			digitalWrite(Guide2, LOW);
+			previousMillis = currentMillis;  // Remember the time
 			break;
-		case 1:    
+		case 1:
 			previousGuideState = 2;
 			digitalWrite(Guide1, HIGH);
 			digitalWrite(Guide2, LOW);
+			previousMillis = currentMillis;  // Remember the time
 			break;
-		case 2:    
+		case 2:
 			previousGuideState = 0;
 			digitalWrite(Guide1, LOW);
 			digitalWrite(Guide2, HIGH);
+			previousMillis = currentMillis;  // Remember the time
 			break;
 		}
 	}
+	
+}
+
 };
 
 
-DekatronStep Dek1(52, 50, 48); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-DekatronStep Dek2(44, 42, 40);
-DekatronStep Dek3(36, 34, 32);
-DekatronStep Dek4(28, 26, 24);
+DekatronStep Dek1(52, 50, 48,10); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+DekatronStep Dek2(44, 42, 40,100);
+DekatronStep Dek3(36, 34, 32,1000);
+DekatronStep Dek4(28, 26, 24,5000);
 
 
 
