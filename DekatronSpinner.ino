@@ -5,15 +5,17 @@ class DekatronStep
 	int Index;
 	int previousGuideState;
 	int stepDelay;
+	bool clockwise;
 	unsigned long previousMillis;
 	
 public:
-	DekatronStep(int pin1, int pin2, int pin3,int sDelay)
+	DekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
 		Index = pin3;
 		stepDelay = sDelay;
+		clockwise = direction;
 		
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
@@ -22,7 +24,7 @@ public:
 
 void Update()
 	{
-		//Delay needed for there is not enough delay in the loop when calling.
+		//Delay needed if there is not enough delay in the loop when calling.
 		//if there is a serial print or the like in the loop then the delay is not needed.
 		// minimum reliable pulse width of a dekatron seems to be about 40uS (in this code).
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
@@ -31,8 +33,8 @@ void Update()
 
 	unsigned long currentMillis = millis();
 
-	if (currentMillis - previousMillis >= stepDelay){
-
+	if ((currentMillis - previousMillis >= stepDelay) && (clockwise == true))
+	{
 		switch (previousGuideState) {
 		case 0:
 			previousGuideState = 1;
@@ -54,16 +56,44 @@ void Update()
 			break;
 		}
 	}
+	else if ((currentMillis - previousMillis >= stepDelay) && (clockwise == false))
+		
+	{
+		switch (previousGuideState) {
+			Serial.println(clockwise);
+		case 0:
+			previousGuideState = 1;
+			digitalWrite(Guide1, LOW);
+			digitalWrite(Guide2, LOW);
+			previousMillis = currentMillis;  // Remember the time
+			break;
+		case 1:
+			previousGuideState = 2;
+			digitalWrite(Guide1, LOW);
+			digitalWrite(Guide2, HIGH);
+			previousMillis = currentMillis;  // Remember the time
+			break;
+		case 2:
+			previousGuideState = 0;
+			digitalWrite(Guide1, HIGH);
+			digitalWrite(Guide2, LOW);
+			previousMillis = currentMillis;  // Remember the time
+			break;
+		}
+
+
+	}
+
 	
 }
 
 };
 
 
-DekatronStep Dek1(52, 50, 48,10); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-DekatronStep Dek2(44, 42, 40,100);
-DekatronStep Dek3(36, 34, 32,1000);
-DekatronStep Dek4(28, 26, 24,5000);
+DekatronStep Dek1(52, 50, 48,5,true); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+DekatronStep Dek2(44, 42, 40,10,true);
+DekatronStep Dek3(36, 34, 32,100,false);
+DekatronStep Dek4(28, 26, 24,1000,true);
 
 
 
