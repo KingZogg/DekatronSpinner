@@ -29,11 +29,11 @@ void Update()
 		// minimum reliable pulse width of a dekatron seems to be about 40uS (in this code).
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
 	
-	delayMicroseconds(40); 
+	//delayMicroseconds(40); 
 
 	unsigned long currentMillis = millis();
 
-	if ((currentMillis - previousMillis >= stepDelay) && (clockwise == true))
+	if ((currentMillis - previousMillis >= stepDelay))
 	{
 		switch (previousGuideState) {
 		case 0:
@@ -42,45 +42,37 @@ void Update()
 			digitalWrite(Guide2, LOW);
 			previousMillis = currentMillis;  // Remember the time
 			break;
-		case 1:
-			previousGuideState = 2;
-			digitalWrite(Guide1, HIGH);
-			digitalWrite(Guide2, LOW);
-			previousMillis = currentMillis;  // Remember the time
-			break;
-		case 2:
-			previousGuideState = 0;
-			digitalWrite(Guide1, LOW);
-			digitalWrite(Guide2, HIGH);
-			previousMillis = currentMillis;  // Remember the time
-			break;
-		}
-	}
-	else if ((currentMillis - previousMillis >= stepDelay) && (clockwise == false))
-		
-	{
-		switch (previousGuideState) {
-			Serial.println(clockwise);
-		case 0:
-			previousGuideState = 1;
-			digitalWrite(Guide1, LOW);
-			digitalWrite(Guide2, LOW);
-			previousMillis = currentMillis;  // Remember the time
-			break;
-		case 1:
-			previousGuideState = 2;
-			digitalWrite(Guide1, LOW);
-			digitalWrite(Guide2, HIGH);
-			previousMillis = currentMillis;  // Remember the time
-			break;
-		case 2:
-			previousGuideState = 0;
-			digitalWrite(Guide1, HIGH);
-			digitalWrite(Guide2, LOW);
-			previousMillis = currentMillis;  // Remember the time
-			break;
-		}
 
+		case 1:
+			previousGuideState = 2;
+			if (clockwise == true)
+			{
+				digitalWrite(Guide1, HIGH);
+				digitalWrite(Guide2, LOW);
+			}
+			else
+			{
+				digitalWrite(Guide1, LOW);
+				digitalWrite(Guide2, HIGH);
+			}
+			previousMillis = currentMillis;  // Remember the time
+			break;
+
+		case 2:
+			previousGuideState = 0;
+			if (clockwise == true)
+			{
+				digitalWrite(Guide1, LOW);
+				digitalWrite(Guide2, HIGH);
+			}
+			else
+			{
+				digitalWrite(Guide1, HIGH);
+				digitalWrite(Guide2, LOW);
+			}
+			previousMillis = currentMillis;  // Remember the time
+			break;
+		}
 
 	}
 
@@ -91,7 +83,7 @@ void Update()
 
 
 DekatronStep Dek1(52, 50, 48,5,true); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-DekatronStep Dek2(44, 42, 40,10,true);
+DekatronStep Dek2(44, 42, 40,10,false);
 DekatronStep Dek3(36, 34, 32,100,false);
 DekatronStep Dek4(28, 26, 24,1000,true);
 
