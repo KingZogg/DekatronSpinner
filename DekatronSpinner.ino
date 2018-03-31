@@ -7,26 +7,24 @@ class dekatronStep
 	int previousGuideState;
 	int stepDelay;
 	bool clockwise;
-	bool indexFlag;
-	int pinCount;
-	int stepToPinNumber;
 	unsigned long previousMillis;
 	
 public:
-	dekatronStep(int pin1, int pin2, int indexPin,int sDelay,bool direction,int stepToPin)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(int pin1, int pin2, int indexPin,bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
 		Index = indexPin;
 		stepDelay = sDelay;
 		clockwise = direction;
-		stepToPinNumber = stepToPin;
-				
+						
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
 		pinMode(Index, INPUT);
 	}
 
+
+	
 void updateStep(unsigned long currentMillis)
 	{
 	//Delay needed if there is not enough delay in the loop when calling.
@@ -36,12 +34,8 @@ void updateStep(unsigned long currentMillis)
 
 	//unsigned long currentMillis = millis();
 
-	if (digitalRead(Index)) indexFlag = true;   // Sample for glow at K0
+	//if (digitalRead(Index)) = true;   // Sample for glow at K0
 	
-	//Serial.println(indexFlag);
-
-	if (pinCount >= 30) pinCount= 0;
-
 	if ((currentMillis - previousMillis >= stepDelay))
 	{
 		switch (previousGuideState) {
@@ -50,7 +44,6 @@ void updateStep(unsigned long currentMillis)
 			digitalWrite(Guide1, LOW);
 			digitalWrite(Guide2, LOW);
 			previousMillis = currentMillis;
-			pinCount++;
 			break;
 
 		case 1:
@@ -59,13 +52,12 @@ void updateStep(unsigned long currentMillis)
 			{
 				digitalWrite(Guide1, HIGH);
 				digitalWrite(Guide2, LOW);
-				pinCount++;
-			}
+				}
 			else
 			{
 				digitalWrite(Guide1, LOW);
 				digitalWrite(Guide2, HIGH);
-				pinCount--;
+				
 			}
 			previousMillis = currentMillis;
 			break;
@@ -76,13 +68,13 @@ void updateStep(unsigned long currentMillis)
 			{
 				digitalWrite(Guide1, LOW);
 				digitalWrite(Guide2, HIGH);
-				pinCount++;
+				
 			}
 			else
 			{
 				digitalWrite(Guide1, HIGH);
 				digitalWrite(Guide2, LOW);
-				pinCount--;
+				
 			}
 			previousMillis = currentMillis;
 			break;
@@ -96,13 +88,12 @@ void updateStep(unsigned long currentMillis)
 
 };
 
-dekatronStep Dek1(52, 50, 48,5,true,15); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,10,true,5);
-dekatronStep Dek3(36, 34, 32,50,true,30);
-dekatronStep Dek4(28, 26, 24,15,true,25);
+dekatronStep Dek1(52, 50, 48,true,1); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek2(44, 42, 40,true,5);
+dekatronStep Dek3(36, 34, 32,true,30);
+dekatronStep Dek4(28, 26, 24,true,100);
 
-int ignoreCount = 0;
-
+int toggle = 3;
 
 void setup()
 {
@@ -134,7 +125,6 @@ ISR(TIMER1_COMPA_vect)
 	Dek2.updateStep(currentMillis);
 	Dek3.updateStep(currentMillis);
 	Dek4.updateStep(currentMillis);
-	
 
 
 }
@@ -143,23 +133,39 @@ ISR(TIMER1_COMPA_vect)
 void loop() {
 	
 	
-	if ((digitalRead(Dek4.Index)) && (Dek3.clockwise == false) && (ignoreCount >=10))
-	{	
-		digitalWrite(LED_BUILTIN, LOW);
-		Dek3.clockwise = true;
-		ignoreCount = 0;
-	}
-	else if ((digitalRead(Dek4.Index)) && (Dek3.clockwise == true) && (ignoreCount >= 10))
-	{
-		digitalWrite(LED_BUILTIN, HIGH);
-		Dek3.clockwise = false;
-		ignoreCount = 0;
-	}
-
-	ignoreCount++;
-	//Serial.println(ignoreCount);
 
 	
+	
+	//if (timeoutDelay <= 0) {
+	//temp = digitalRead(Dek4.Index);
+
+	Serial.println(digitalRead(Dek2.Index));
+
+		if (digitalRead(Dek4.Index) && (Dek3.clockwise == false)) toggle == 0;
+		if (digitalRead(Dek4.Index) && (Dek3.clockwise == true)) toggle == 1;
+
+		switch (toggle) {
+		case 0:
+			digitalWrite(LED_BUILTIN, LOW);
+			Dek3.clockwise = true;
+			Serial.println("Hit First If");
+			break;
+		case 1:    
+			digitalWrite(LED_BUILTIN, HIGH);
+			Dek3.clockwise = false;
+			Serial.println("Hit Second If");
+			break;
+		}
+
+	//}
+
+
+	//timeoutDelay--;
+	//Serial.println(timeoutDelay);
+
+
+	
+
 	
 
 }
