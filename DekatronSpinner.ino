@@ -9,7 +9,7 @@ class dekatronStep
 	unsigned long previousMillis;
 	
 public:
-	dekatronStep(int pin1, int pin2, int pin3,int sDelay,bool direction)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(int pin1, int pin2, int pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
@@ -79,10 +79,10 @@ void updateStep(unsigned long currentMillis)
 
 };
 
-dekatronStep Dek1(52, 50, 48,0,false); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,0,true);
-dekatronStep Dek3(36, 34, 32,0,true);
-dekatronStep Dek4(28, 26, 24,0,true);
+dekatronStep Dek1(52, 50, 48,false,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek2(44, 42, 40,true,10);
+dekatronStep Dek3(36, 34, 32,true,50);
+dekatronStep Dek4(28, 26, 24,true,100);
 
 void setup()
 {
