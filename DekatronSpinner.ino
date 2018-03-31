@@ -1,5 +1,6 @@
 class dekatronStep
 {
+public:	
 	int Guide1;   
 	int Guide2;
 	int Index;
@@ -101,6 +102,8 @@ void setup()
 	TIMSK1 |= (1 << OCIE1A);
 	sei(); // allow interrupts
 
+	pinMode(LED_BUILTIN, OUTPUT);
+
 }
 
 // Interrupt is called once a millisecond
@@ -117,6 +120,9 @@ ISR(TIMER1_COMPA_vect)
 
 // the loop function runs over and over again forever
 void loop() {
+
+	if (digitalRead(Dek1.Index)) digitalWrite(LED_BUILTIN, HIGH);
+	else digitalWrite(LED_BUILTIN, LOW);
 
 }
 
