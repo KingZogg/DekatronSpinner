@@ -1,5 +1,6 @@
 class dekatronStep
 {
+
 public:	
 	int Guide1;   
 	int Guide2;
