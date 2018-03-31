@@ -82,7 +82,7 @@ void updateStep(unsigned long currentMillis)
 };
 
 dekatronStep Dek1(52, 50, 48,false,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,true,10);
+dekatronStep Dek2(44, 42, 40,true,3);
 dekatronStep Dek3(36, 34, 32,true,50);
 dekatronStep Dek4(28, 26, 24,true,100);
 
@@ -105,6 +105,8 @@ void setup()
 
 	pinMode(LED_BUILTIN, OUTPUT);
 
+	Serial.begin(2000000);
+
 }
 
 // Interrupt is called once a millisecond
@@ -122,8 +124,10 @@ ISR(TIMER1_COMPA_vect)
 // the loop function runs over and over again forever
 void loop() {
 
-	if (digitalRead(Dek1.Index)) digitalWrite(LED_BUILTIN, HIGH);
+	if (digitalRead(Dek3.Index)) digitalWrite(LED_BUILTIN, HIGH);
 	else digitalWrite(LED_BUILTIN, LOW);
+	Serial.println(digitalRead(Dek3.Index));
+
 
 }
 
