@@ -21,7 +21,7 @@ public:
 		
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
-		pinMode(Index, INPUT);
+		pinMode(Index, INPUT_PULLUP);
 	}
 
 void updateStep(unsigned long currentMillis)
@@ -81,10 +81,19 @@ void updateStep(unsigned long currentMillis)
 
 };
 
-dekatronStep Dek1(52, 50, 48,false,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
 dekatronStep Dek2(44, 42, 40,true,3);
 dekatronStep Dek3(36, 34, 32,true,50);
-dekatronStep Dek4(28, 26, 24,true,100);
+dekatronStep Dek4(28, 26, 24,true,200);
+
+int IndexCount = 0;
+
+byte oldIndexState = HIGH;  // assume index open because of pull-up resistor
+const unsigned long ignoreTime = 100;  // milliseconds
+unsigned long indexHighTime;  // when the index last changed state
+
+
+
 
 void setup()
 {
@@ -105,7 +114,7 @@ void setup()
 
 	pinMode(LED_BUILTIN, OUTPUT);
 
-	Serial.begin(2000000);
+	//Serial.begin(2000000);
 
 }
 
@@ -124,10 +133,72 @@ ISR(TIMER1_COMPA_vect)
 // the loop function runs over and over again forever
 void loop() {
 
-	if (digitalRead(Dek3.Index)) digitalWrite(LED_BUILTIN, HIGH);
-	else digitalWrite(LED_BUILTIN, LOW);
-	Serial.println(digitalRead(Dek3.Index));
+//	if (digitalRead(Dek4.Index)) 
+//	{
+//		digitalWrite(LED_BUILTIN, HIGH);
+//		Serial.println(" Index");
+//		Serial.print(IndexCount);
+//		IndexCount++;
+//	}
+//	else digitalWrite(LED_BUILTIN, LOW);
+
+
+
+
+
+	// see if Index is High or Low
+	byte indexState = digitalRead(Dek4.Index);
+
+	// has it changed since last time?
+	if (indexState != oldIndexState)
+	{
+		// ignore time.
+		if (millis() - indexHighTime >= ignoreTime)
+		{
+			indexHighTime = millis();  // when index was high
+			oldIndexState = indexState;  // remember for next time 
+			if (indexState == LOW)
+			{
+				Serial.println("indexState low.");
+				digitalWrite(LED_BUILTIN, HIGH);
+			}  // end if indexState is LOW
+			else
+			{
+				Serial.println("indexState high.");
+				digitalWrite(LED_BUILTIN, LOW);
+			}  // end if indexState is HIGH
+
+		}  // end if debounce time up
+
+		Serial.print(IndexCount);
+		IndexCount++;
+
+	}  // end of state change
+
+
+
+
+
+
+
+
+
+	
+	//Serial.println(digitalRead(Dek4.Index));
+
+	//Dek4.clockwise = false;
+
+	//if (digitalRead(Dek4.Index)) Serial.println("Dek4 Index");
+	
+	//if (Dek4.clockwise = true);
+	//Serial.println("Dek4 Clockwise");
+
+
+	//else if Dek3.clockwise = true;
+	
+
 
 
 }
+
 
