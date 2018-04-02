@@ -21,7 +21,7 @@ public:
 		
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
-		pinMode(Index, INPUT_PULLUP);
+		pinMode(Index, INPUT);
 	}
 
 void updateStep(unsigned long currentMillis)
@@ -83,14 +83,15 @@ void updateStep(unsigned long currentMillis)
 
 dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
 dekatronStep Dek2(44, 42, 40,true,3);
-dekatronStep Dek3(36, 34, 32,true,100);
-dekatronStep Dek4(28, 26, 24,true,50);
+dekatronStep Dek3(36, 34, 32,true,50);
+dekatronStep Dek4(28, 26, 24,true,20);
 
 int IndexCount = 0;
 
-byte oldIndexState = HIGH;  // assume index open because of pull-up resistor
+//index ignore timout settings.
+byte oldIndexState = HIGH;  
 const unsigned long ignoreTime = 5;  // milliseconds
-unsigned long indexHighTime;  // when the index last changed state
+unsigned long indexHighTime;	// when the index last changed state
 
 
 
@@ -133,16 +134,6 @@ ISR(TIMER1_COMPA_vect)
 // the loop function runs over and over again forever
 void loop() {
 
-//	if (digitalRead(Dek4.Index)) 
-//	{
-//		digitalWrite(LED_BUILTIN, HIGH);
-//		Serial.println(" Index");
-//		Serial.print(IndexCount);
-//		IndexCount++;
-//	}
-//	else digitalWrite(LED_BUILTIN, LOW);
-
-
 	// see if Index is High or Low
 	byte indexState = digitalRead(Dek4.Index);
 
@@ -158,20 +149,22 @@ void loop() {
 				if ((indexState == HIGH) && (Dek3.clockwise == false))
 				{
 					Dek3.clockwise = true;
-					Serial.println("index high");
+					Serial.println("Clockwise");
+					//Serial.println("index high");
 
 				}
 				else if (((indexState == HIGH)) && (Dek3.clockwise == true))
 				{
 					Dek3.clockwise = false;
-					Serial.println("index low");
+					Serial.println("Counter Clockwise");
+					//Serial.println("index low");
 
 				}
 
 		}  // end if ignore time up
 
-		Serial.println(IndexCount);
-		IndexCount++;
+		//Serial.println(IndexCount);
+		//IndexCount++;
 
 	}  // end of state change
 
