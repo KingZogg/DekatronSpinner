@@ -3,13 +3,13 @@ class dekatronStep
 // Class Member Variables
 // These are initialized at startup
 public:	
-	int Guide1;   
-	int Guide2;
-	int Index;
-	int previousGuideState;
+	byte Guide1;   
+	byte Guide2;
+	byte Index;
+	byte previousGuideState;
 	int stepDelay;
 	bool clockwise;
-	bool atTheIndexPin;
+	int atTheIndexPin;
 	
 	unsigned long previousMillis;
 
@@ -24,7 +24,7 @@ public:
 // Constructor - creates a dekatronStep 
 // and initializes the member variables and state
 public:
-	dekatronStep(int pin1, int pin2, int pin3, bool direction,bool indexOn,unsigned long timeIgnore, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(byte pin1, byte pin2, byte pin3, bool direction,int indexOn,unsigned long timeIgnore, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
@@ -42,23 +42,24 @@ public:
 	}
 	
 //Member function.
-void updateStep(unsigned long currentMillis)		
+int updateStep(bool clockwise,int atTheIndexPin,int stepDelay)		
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
+	//int atTheIndexPin;
 	
 	delayMicroseconds(40); 
 
 	//unsigned long currentMillis = millis();
 
-	if ((currentMillis - previousMillis >= stepDelay))
+	if (millis() - previousMillis >= stepDelay)
 	{
 		switch (previousGuideState) {
 		case 0:
 			previousGuideState = 1;
 			digitalWrite(Guide1, LOW);
 			digitalWrite(Guide2, LOW);
-			previousMillis = currentMillis;
+			previousMillis = millis();
 			break;
 
 		case 1:
@@ -73,7 +74,7 @@ void updateStep(unsigned long currentMillis)
 				digitalWrite(Guide1, LOW);
 				digitalWrite(Guide2, HIGH);
 			}
-			previousMillis = currentMillis;
+			previousMillis = millis();
 			break;
 
 		case 2:
@@ -88,12 +89,18 @@ void updateStep(unsigned long currentMillis)
 				digitalWrite(Guide1, HIGH);
 				digitalWrite(Guide2, LOW);
 			}
-			previousMillis = currentMillis;
+			previousMillis = millis();
 			break;
 		} // end of switch case
 
 		  // see if Index is High or Low
+		atTheIndexPin = digitalRead(Index);
+
+		/*
+		// see if Index is High or Low
 		byte indexState = digitalRead(Index);
+
+		
 
 		// has index state changed since last time?
 		if (indexState != oldIndexState)
@@ -101,7 +108,7 @@ void updateStep(unsigned long currentMillis)
 			// ignore time.
 			if (millis() - indexHighTime >= ignoreTime)
 			{
-				indexHighTime = currentMillis;  // when index was high
+				indexHighTime = millis();  // when index was high
 				oldIndexState = indexState;  // remember for next time 
 
 				if ((indexState == HIGH) && (clockwise == false))
@@ -124,17 +131,22 @@ void updateStep(unsigned long currentMillis)
 
 		}  // end of state change
 
+		*/
+		
+		return atTheIndexPin;
 	}
 
+	
 	
 }
 
 };
 
-dekatronStep Dek1(52, 50, 48,true,false,500,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,true,false,1000,3);
-dekatronStep Dek3(36, 34, 32,true, false,500,50);
-dekatronStep Dek4(28, 26, 24,true, false,100,20);
+//setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek1(52, 50, 48,true,false,0,0);
+dekatronStep Dek2(44, 42, 40,true,false,0,0);
+dekatronStep Dek3(36, 34, 32,true,false,0,0);
+dekatronStep Dek4(28, 26, 24,true,false,0,0);
 
 
 
@@ -167,12 +179,26 @@ void setup()
 // Interrupt is called once a millisecond
 ISR(TIMER1_COMPA_vect)
 {
-	unsigned long currentMillis = millis();
+//	unsigned long currentMillis = millis();
 
-	Dek1.updateStep(currentMillis);
-	Dek2.updateStep(currentMillis);
-	Dek3.updateStep(currentMillis);
-	Dek4.updateStep(currentMillis);
+	Dek1.updateStep(false,0,20);
+
+	
+
+	if (Dek1.atTheIndexPin == 1) {
+		Dek1.updateStep(true,0, 1000);
+		digitalWrite(LED_BUILTIN, HIGH);
+	}
+	
+	//Dek2.updateStep(true , 100);
+	//Dek3.updateStep(true , 500);
+	//Dek4.updateStep(false, 1000);
+	
+
+
+	//Dek2.updateStep.ignoreTime(currentMillis);
+	//Dek3.updateStep.ignoreTime(currentMillis);
+	//Dek4.updateStep.ignoreTime(currentMillis);
 
 	//updateIndex(currentMillis);
 	//Dek1.atTheIndexPin(currentMillis);
