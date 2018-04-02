@@ -86,7 +86,6 @@ dekatronStep Dek2(44, 42, 40,true,3);
 dekatronStep Dek3(36, 34, 32,true,50);
 dekatronStep Dek4(28, 26, 24,true,20);
 
-int IndexCount = 0;
 
 //index ignore timout settings.
 byte oldIndexState = HIGH;  
@@ -162,9 +161,6 @@ void loop() {
 				}
 
 		}  // end if ignore time up
-
-		//Serial.println(IndexCount);
-		//IndexCount++;
 
 	}  // end of state change
 
