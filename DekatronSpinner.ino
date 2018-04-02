@@ -83,8 +83,8 @@ void updateStep(unsigned long currentMillis)
 
 dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
 dekatronStep Dek2(44, 42, 40,true,3);
-dekatronStep Dek3(36, 34, 32,true,50);
-dekatronStep Dek4(28, 26, 24,true,10);
+dekatronStep Dek3(36, 34, 32,true,100);
+dekatronStep Dek4(28, 26, 24,true,50);
 
 int IndexCount = 0;
 
@@ -154,16 +154,19 @@ void loop() {
 		{
 			indexHighTime = millis();  // when index was high
 			oldIndexState = indexState;  // remember for next time 
-			if (indexState == LOW)
-			{
-				Serial.println("indexState low.");
-				digitalWrite(LED_BUILTIN, HIGH);
-			}  // end if indexState is LOW
-			else
-			{
-				Serial.println("indexState high.");
-				digitalWrite(LED_BUILTIN, LOW);
-			}  // end if indexState is HIGH
+			
+				if ((indexState == HIGH) && (Dek3.clockwise == false))
+				{
+					Dek3.clockwise = true;
+					Serial.println("index high");
+
+				}
+				else if (((indexState == HIGH)) && (Dek3.clockwise == true))
+				{
+					Dek3.clockwise = false;
+					Serial.println("index low");
+
+				}
 
 		}  // end if ignore time up
 
@@ -172,18 +175,6 @@ void loop() {
 
 	}  // end of state change
 
-		
-	//Serial.println(digitalRead(Dek4.Index));
-
-	//Dek4.clockwise = false;
-
-	//if (digitalRead(Dek4.Index)) Serial.println("Dek4 Index");
-	
-	//if (Dek4.clockwise = true);
-	//Serial.println("Dek4 Clockwise");
-
-
-	//else if Dek3.clockwise = true;
 	
 
 
