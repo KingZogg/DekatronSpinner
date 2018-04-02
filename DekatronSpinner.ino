@@ -1,16 +1,8 @@
 class dekatronStep
 {
 
-public:	
-	int Guide1;   
-	int Guide2;
-	int Index;
-	int previousGuideState;
-	int stepDelay;
-	bool clockwise;
-	unsigned long previousMillis;
 	
-public:
+public: //this is the constuctor.
 	dekatronStep(int pin1, int pin2, int pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
@@ -23,6 +15,18 @@ public:
 		pinMode(Guide2, OUTPUT);
 		pinMode(Index, INPUT);
 	}
+
+
+private:
+
+	int Guide1;
+	int Guide2;
+	int Index;
+	int previousGuideState;
+	int stepDelay;
+	bool clockwise;
+	unsigned long previousMillis;
+
 
 void updateStep(unsigned long currentMillis)
 	{
@@ -81,17 +85,87 @@ void updateStep(unsigned long currentMillis)
 
 };
 
+
+class dekatronDetectIndex
+{
+
+public:
+	int Guide1;
+	int Guide2;
+	int Index;
+	bool clockwise;
+	bool indexDetected;
+	unsigned long previousMillis;
+
+public:
+	dekatronDetectIndex(int pin1, int pin2, int pin3,bool direction, bool detectIndex)	//Guide1, Guide2, Index, StepDelay, Direction
+	{
+		Guide1 = pin1;
+		Guide2 = pin2;
+		Index = pin3;
+		clockwise = direction;
+		indexDetected = detectIndex;
+
+		pinMode(Guide1, OUTPUT);
+		pinMode(Guide2, OUTPUT);
+		pinMode(Index, INPUT);
+	}
+
+
+	void updateDetectIndex(unsigned long currentMillis,byte oldIndexState, unsigned long ignoreTime,unsigned long indexHighTime)
+	{
+		// see if Index is High or Low
+		byte indexState = indexDetected;;
+
+		// has index state changed since last time?
+		if (indexState != oldIndexState)
+		{
+			// ignore time.
+			if (millis() - indexHighTime >= ignoreTime)
+			{
+				indexHighTime = currentMillis;  // when index was high
+				oldIndexState = indexState;  // remember for next time 
+
+				if ((indexState == HIGH) && (clockwise == false))
+				{
+					clockwise = true;
+					Serial.println("Clockwise");
+					//Serial.println("index high");
+
+				}
+				else if (((indexState == HIGH)) && (clockwise == true))
+				{
+					clockwise = false;
+					Serial.println("Counter Clockwise");
+					//Serial.println("index low");
+
+				}
+
+			}  // end if ignore time up
+
+			   //Serial.println(IndexCount);
+			   //IndexCount++;
+
+		}  // end of state change
+
+		}
+
+};
+
+
 dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
 dekatronStep Dek2(44, 42, 40,true,3);
 dekatronStep Dek3(36, 34, 32,true,50);
 dekatronStep Dek4(28, 26, 24,true,20);
 
-int IndexCount = 0;
+dekatronDetectIndex Dek11(52, 50, 48,true, false); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronDetectIndex Dek22(44, 42, 40,true, false);
+dekatronDetectIndex Dek33(36, 34, 32,true, false);
+dekatronDetectIndex Dek44(28, 26, 24,true, false);
 
-//index ignore timout settings.
-byte oldIndexState = HIGH;  
-const unsigned long ignoreTime = 5;  // milliseconds
-unsigned long indexHighTime;	// when the index last changed state
+
+
+
 
 
 
@@ -129,44 +203,22 @@ ISR(TIMER1_COMPA_vect)
 	Dek3.updateStep(currentMillis);
 	Dek4.updateStep(currentMillis);
 
+	//index ignore timout settings.
+	byte oldIndexState = HIGH;
+	const unsigned long ignoreTime = 5;  // milliseconds
+	unsigned long indexHighTime;	// when the index last changed state
+
+
+	//Dek11.updateDetectIndex(currentMillis, oldIndexState,ignoreTime,indexHighTime);
+	//Dek22.updateDetectIndex(currentMillis, oldIndexState, ignoreTime, indexHighTime);
+	//Dek33.updateDetectIndex(currentMillis, oldIndexState, ignoreTime, indexHighTime);
+	Dek44.updateDetectIndex(currentMillis, oldIndexState, ignoreTime, indexHighTime);
 }
 
 // the loop function runs over and over again forever
 void loop() {
 
-	// see if Index is High or Low
-	byte indexState = digitalRead(Dek4.Index);
-
-	// has index state changed since last time?
-	if (indexState != oldIndexState)
-	{
-		// ignore time.
-		if (millis() - indexHighTime >= ignoreTime)
-		{
-			indexHighTime = millis();  // when index was high
-			oldIndexState = indexState;  // remember for next time 
-			
-				if ((indexState == HIGH) && (Dek3.clockwise == false))
-				{
-					Dek3.clockwise = true;
-					Serial.println("Clockwise");
-					//Serial.println("index high");
-
-				}
-				else if (((indexState == HIGH)) && (Dek3.clockwise == true))
-				{
-					Dek3.clockwise = false;
-					Serial.println("Counter Clockwise");
-					//Serial.println("index low");
-
-				}
-
-		}  // end if ignore time up
-
-		//Serial.println(IndexCount);
-		//IndexCount++;
-
-	}  // end of state change
+	
 
 	
 
