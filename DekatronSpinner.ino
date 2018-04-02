@@ -15,7 +15,7 @@ public:
 
 	//index ignore timout settings.
 	byte oldIndexState = HIGH;
-	const unsigned long ignoreTime = 5;  // milliseconds
+	unsigned long ignoreTime = 5;  // milliseconds
 	unsigned long indexHighTime;	// when the index last changed state
 
 	
@@ -24,7 +24,7 @@ public:
 // Constructor - creates a dekatronStep 
 // and initializes the member variables and state
 public:
-	dekatronStep(int pin1, int pin2, int pin3, bool direction,bool indexOn, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(int pin1, int pin2, int pin3, bool direction,bool indexOn,unsigned long timeIgnore, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
@@ -32,6 +32,7 @@ public:
 		stepDelay = sDelay;
 		clockwise = direction;
 		atTheIndexPin = indexOn;
+		ignoreTime = timeIgnore;
 
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
@@ -130,10 +131,10 @@ void updateStep(unsigned long currentMillis)
 
 };
 
-dekatronStep Dek1(52, 50, 48,true,false,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,true,false,3);
-dekatronStep Dek3(36, 34, 32,true, false,50);
-dekatronStep Dek4(28, 26, 24,true, false,20);
+dekatronStep Dek1(52, 50, 48,true,false,500,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek2(44, 42, 40,true,false,1000,3);
+dekatronStep Dek3(36, 34, 32,true, false,500,50);
+dekatronStep Dek4(28, 26, 24,true, false,100,20);
 
 
 
