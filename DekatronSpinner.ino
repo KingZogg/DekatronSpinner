@@ -72,7 +72,7 @@ void updateStep(unsigned long currentMillis)
 			}
 			previousMillis = currentMillis;
 			break;
-		}
+		} // end of switch case
 
 	}
 
@@ -84,12 +84,12 @@ void updateStep(unsigned long currentMillis)
 dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
 dekatronStep Dek2(44, 42, 40,true,3);
 dekatronStep Dek3(36, 34, 32,true,50);
-dekatronStep Dek4(28, 26, 24,true,200);
+dekatronStep Dek4(28, 26, 24,true,10);
 
 int IndexCount = 0;
 
 byte oldIndexState = HIGH;  // assume index open because of pull-up resistor
-const unsigned long ignoreTime = 100;  // milliseconds
+const unsigned long ignoreTime = 5;  // milliseconds
 unsigned long indexHighTime;  // when the index last changed state
 
 
@@ -143,13 +143,10 @@ void loop() {
 //	else digitalWrite(LED_BUILTIN, LOW);
 
 
-
-
-
 	// see if Index is High or Low
 	byte indexState = digitalRead(Dek4.Index);
 
-	// has it changed since last time?
+	// has index state changed since last time?
 	if (indexState != oldIndexState)
 	{
 		// ignore time.
@@ -168,22 +165,14 @@ void loop() {
 				digitalWrite(LED_BUILTIN, LOW);
 			}  // end if indexState is HIGH
 
-		}  // end if debounce time up
+		}  // end if ignore time up
 
-		Serial.print(IndexCount);
+		Serial.println(IndexCount);
 		IndexCount++;
 
 	}  // end of state change
 
-
-
-
-
-
-
-
-
-	
+		
 	//Serial.println(digitalRead(Dek4.Index));
 
 	//Dek4.clockwise = false;
