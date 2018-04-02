@@ -1,6 +1,7 @@
 class dekatronStep
 {
-
+// Class Member Variables
+// These are initialized at startup
 public:	
 	int Guide1;   
 	int Guide2;
@@ -8,23 +9,39 @@ public:
 	int previousGuideState;
 	int stepDelay;
 	bool clockwise;
-	unsigned long previousMillis;
+	bool atTheIndexPin;
 	
+	unsigned long previousMillis;
+
+	//index ignore timout settings.
+	byte oldIndexState = HIGH;
+	const unsigned long ignoreTime = 5;  // milliseconds
+	unsigned long indexHighTime;	// when the index last changed state
+
+	
+
+
+// Constructor - creates a dekatronStep 
+// and initializes the member variables and state
 public:
-	dekatronStep(int pin1, int pin2, int pin3, bool direction, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
+	dekatronStep(int pin1, int pin2, int pin3, bool direction,bool indexOn, int sDelay)	//Guide1, Guide2, Index, StepDelay, Direction
 	{
 		Guide1 = pin1;
 		Guide2 = pin2;
 		Index = pin3;
 		stepDelay = sDelay;
 		clockwise = direction;
-		
+		atTheIndexPin = indexOn;
+
 		pinMode(Guide1, OUTPUT);
 		pinMode(Guide2, OUTPUT);
 		pinMode(Index, INPUT);
-	}
 
-void updateStep(unsigned long currentMillis)
+		
+	}
+	
+//Member function.
+void updateStep(unsigned long currentMillis)		
 	{
 		//Delay needed if there is not enough delay in the loop when calling.
 		// will need adjusting depending on processor speed. This is runing at 16mHz.
@@ -74,6 +91,38 @@ void updateStep(unsigned long currentMillis)
 			break;
 		} // end of switch case
 
+		  // see if Index is High or Low
+		byte indexState = digitalRead(Index);
+
+		// has index state changed since last time?
+		if (indexState != oldIndexState)
+		{
+			// ignore time.
+			if (millis() - indexHighTime >= ignoreTime)
+			{
+				indexHighTime = currentMillis;  // when index was high
+				oldIndexState = indexState;  // remember for next time 
+
+				if ((indexState == HIGH) && (clockwise == false))
+				{
+					clockwise = true;
+					//Serial.println("Clockwise");
+					//Serial.println("index high");
+
+				}
+				else if (((indexState == HIGH)) && (clockwise == true))
+				{
+					clockwise = false;
+					//Serial.println("Counter Clockwise");
+					//Serial.println("index low");
+
+				}
+
+			}  // end if ignore time up
+
+
+		}  // end of state change
+
 	}
 
 	
@@ -81,16 +130,12 @@ void updateStep(unsigned long currentMillis)
 
 };
 
-dekatronStep Dek1(52, 50, 48,true,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
-dekatronStep Dek2(44, 42, 40,true,3);
-dekatronStep Dek3(36, 34, 32,true,50);
-dekatronStep Dek4(28, 26, 24,true,20);
+dekatronStep Dek1(52, 50, 48,true,false,0); //setup physical pins here. In this case 52 and 50 are G1 and G2. The index is 48.
+dekatronStep Dek2(44, 42, 40,true,false,3);
+dekatronStep Dek3(36, 34, 32,true, false,50);
+dekatronStep Dek4(28, 26, 24,true, false,20);
 
 
-//index ignore timout settings.
-byte oldIndexState = HIGH;  
-const unsigned long ignoreTime = 5;  // milliseconds
-unsigned long indexHighTime;	// when the index last changed state
 
 
 
@@ -128,11 +173,12 @@ ISR(TIMER1_COMPA_vect)
 	Dek3.updateStep(currentMillis);
 	Dek4.updateStep(currentMillis);
 
-	updateIndex(currentMillis);
-
+	//updateIndex(currentMillis);
+	//Dek1.atTheIndexPin(currentMillis);
+	//Dek1.atTheIndexPin;
 }
 
-
+/*
 void updateIndex(unsigned long currentMillis) {
 
 	// see if Index is High or Low
@@ -169,6 +215,8 @@ void updateIndex(unsigned long currentMillis) {
 
 }
 
+
+*/
 void loop() {
 
 	
