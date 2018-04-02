@@ -128,10 +128,12 @@ ISR(TIMER1_COMPA_vect)
 	Dek3.updateStep(currentMillis);
 	Dek4.updateStep(currentMillis);
 
+	updateIndex(currentMillis);
+
 }
 
-// the loop function runs over and over again forever
-void loop() {
+
+void updateIndex(unsigned long currentMillis) {
 
 	// see if Index is High or Low
 	byte indexState = digitalRead(Dek4.Index);
@@ -142,7 +144,7 @@ void loop() {
 		// ignore time.
 		if (millis() - indexHighTime >= ignoreTime)
 		{
-			indexHighTime = millis();  // when index was high
+			indexHighTime = currentMillis;  // when index was high
 			oldIndexState = indexState;  // remember for next time 
 			
 				if ((indexState == HIGH) && (Dek3.clockwise == false))
@@ -162,12 +164,12 @@ void loop() {
 
 		}  // end if ignore time up
 
+
 	}  // end of state change
-
-	
-
-
 
 }
 
+void loop() {
 
+	
+}
